@@ -4,10 +4,7 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 	exit
 }
 sleep 2
-#write-host "Killing tasks"
 
-Write-host "Now Hacking Your Computer..."
-sleep 2
 ##########
 # Privacy Settings
 ##########

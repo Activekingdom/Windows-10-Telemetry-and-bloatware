@@ -78,22 +78,22 @@ Write-Host "Disabling Cortana..."
 If (!(Test-Path "HKCU:\Software\Microsoft\Personalization\Settings")) {
 	New-Item -Path "HKCU:\Software\Microsoft\Personalization\Settings" -Force | Out-Null
 }
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Personalization\Settings" -Name "AcceptedPrivacyPolicy" -Type DWord -Value 0
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Personalization\Settings" -Force -Name "AcceptedPrivacyPolicy" -Type DWord -Value 0
 If (!(Test-Path "HKCU:\Software\Microsoft\InputPersonalization")) {
 	New-Item -Path "HKCU:\Software\Microsoft\InputPersonalization" -Force | Out-Null
 }
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitTextCollection" -Type DWord -Value 1
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitInkCollection" -Type DWord -Value 1
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization" -Force -Name "RestrictImplicitTextCollection" -Type DWord -Value 1
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization" -Force -Name "RestrictImplicitInkCollection" -Type DWord -Value 1
 If (!(Test-Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore")) {
 	New-Item -Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore" -Force | Out-Null
 }
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore" -Name "HarvestContacts" -Type DWord -Value 0
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore" -Force -Name "HarvestContacts" -Type DWord -Value 0
 
 #Stops Cortana from being used as part of your Windows Search Function
     Write-Output "Stopping Cortana from being used as part of your Windows Search Function"
     $Search = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search'
     If (Test-Path $Search) {
-        Set-ItemProperty $Search -Name AllowCortana -Value 0 -Verbose
+        Set-ItemProperty $Search -Force -Name AllowCortana -Value 0 -Verbose
     }
 	
 # Enable Cortana
@@ -104,11 +104,11 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDat
 
 # Restrict Windows Update P2P only to local network
 Write-Host "Restricting Windows Update P2P only to local network..."
-Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -Type DWord -Value 1
+Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -Type DWord -Value 1 #0=off 1=On but local network only 2=On,local network private peering only 3=On local network and Internet 99=simply download mode 100=bypass mode
 If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\DeliveryOptimization")) {
 	New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\DeliveryOptimization" | Out-Null
 }
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\DeliveryOptimization" -Name "SystemSettingsDownloadMode" -Type DWord -Value 3
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\DeliveryOptimization" -Force -Name "SystemSettingsDownloadMode" -Type DWord -Value 3
 
 # Unrestrict Windows Update P2P
 # Remove-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode"
@@ -153,7 +153,8 @@ Set-Service "DiagTrack" -StartupType Disabled
 # Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableLinkedConnections" -Type DWord -Value 1
 
 # Disable sharing mapped drives between users
-# Remove-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableLinkedConnections"
+Write-host "Disabling sharing mapped drives between users"
+Remove-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Force -Name "EnableLinkedConnections"
 
 # Disable Firewall
 # Write-Host "Disabling Firewall..."
@@ -170,7 +171,7 @@ Set-Service "DiagTrack" -StartupType Disabled
 # Remove-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows Defender" -Name "DisableAntiSpyware"
 
 # Disable Windows Update automatic restart
-Write-Host "Disabling Windows Update automatic restart..."
+Write-Host "Disabling Windows Update automatic restart...You can enable later"
 Set-ItemProperty -Path "HKLM:\Software\Microsoft\WindowsUpdate\UX\Settings" -Name "UxOption" -Type DWord -Value 1
 
 # Enable Windows Update automatic restart
@@ -248,8 +249,8 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer
 # Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoDriveTypeAutoRun"
 
 # Disable Sticky keys prompt
-# Write-Host "Disabling Sticky keys prompt..."
-# Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Name "Flags" -Type String -Value "506"
+Write-Host "Disabling Sticky keys prompt..."
+Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Force -Name "Flags" -Type String -Value "506"
 
 # Enable Sticky keys prompt
 # Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Name "Flags" -Type String -Value "510"
@@ -430,46 +431,47 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -For
 # 	$onedrive = "$env:SYSTEMROOT\System32\OneDriveSetup.exe"
 # }
 # Start-Process $onedrive -NoNewWindow
-
-# Uninstall default Microsoft applications
+Write-Host "PACKAGES_NAMES_NEEDS_UPDATING"
+Start-Sleep 3
+# Uninstall default Microsoft applications ##PACKAGES_NAMES_NEEDS_UPDATING##
 Write-Host "Uninstalling default Microsoft applications..."
-Get-AppxPackage "Microsoft.3DBuilder" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.BingFinance" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.BingNews" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.BingSports" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.BingWeather" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.Getstarted" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.MicrosoftOfficeHub" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.MicrosoftSolitaireCollection" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.Office.OneNote" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.People" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.SkypeApp" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.Windows.Photos" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.WindowsAlarms" | Remove-AppxPackage
-# Get-AppxPackage "Microsoft.WindowsCamera" | Remove-AppxPackage
-Get-AppxPackage "microsoft.windowscommunicationsapps" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.WindowsMaps" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.WindowsPhone" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.WindowsSoundRecorder" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.XboxApp" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.ZuneMusic" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.ZuneVideo" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.AppConnector" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.ConnectivityStore" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.Office.Sway" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.Messaging" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.CommsPhone" | Remove-AppxPackage
-Get-AppxPackage "9E2F88E3.Twitter" | Remove-AppxPackage
-Get-AppxPackage "king.com.CandyCrushSodaSaga" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.WindowsFeedbackHub" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.Wallet" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.ScreenSketch" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.GetHelp" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.Xbox.TCUI" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.XboxGameOverlay" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.XboxSpeechToTextOverlay" | Remove-AppxPackage
-Get-AppxPackage "Microsoft.MixedReality.Portal" | Remove-AppxPackage
-Get-AppBackgroundTask "Microsoft.XboxIdentityProvider" | Remove-AppxPackage
+Get-AppxPackage "Microsoft.3DBuilder" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.BingFinance" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.BingNews" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.BingSports" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.BingWeather" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.Getstarted" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.MicrosoftOfficeHub" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.MicrosoftSolitaireCollection" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.Office.OneNote" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.People" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.SkypeApp" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.Windows.Photos" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.WindowsAlarms" | Remove-AppxPackage -AllUsers
+# Get-AppxPackage "Microsoft.WindowsCamera" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "microsoft.windowscommunicationsapps" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.WindowsMaps" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.WindowsPhone" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.WindowsSoundRecorder" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.XboxApp" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.ZuneMusic" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.ZuneVideo" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.AppConnector" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.ConnectivityStore" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.Office.Sway" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.Messaging" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.CommsPhone" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "9E2F88E3.Twitter" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "king.com.CandyCrushSodaSaga" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.WindowsFeedbackHub" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.Wallet" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.ScreenSketch" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.GetHelp" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.Xbox.TCUI" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.XboxGameOverlay" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.XboxSpeechToTextOverlay" | Remove-AppxPackage -AllUsers
+Get-AppxPackage "Microsoft.MixedReality.Portal" | Remove-AppxPackage -AllUsers
+##Get-AppBackgroundTask "Microsoft.XboxIdentityProvider" | Remove-AppxPackage -AllUsers##Might not NEED this##
 
 
 # Install default Microsoft applications
@@ -584,6 +586,7 @@ $services = @(
     "XblGameSave"                              # Xbox Live Game Save Service
     "XboxNetApiSvc"                            # Xbox Live Networking Service
     "ndu"                                      # Windows Network Data Usage Monitor
+    "spoolsv"				       #Print Spooler needed for printing
     # Services which cannot be disabled
     #"WdNisSvc"
 )
@@ -591,6 +594,7 @@ $services = @(
 foreach ($service in $services) {
     Write-Output "Trying to disable $service"
     Get-Service -Name $service | Set-Service -StartupType Disabled
+    Get-Service -Name $service | Stop-Service -Force
 }
 
 
@@ -635,7 +639,9 @@ Import-Module -DisableNameChecking $PSScriptRoot\..\lib\New-FolderForced.psm1
 Write-Output "Elevating privileges for this process"
 do {} until (Elevate-Privileges SeTakeOwnershipPrivilege)
 
-Write-Output "Uninstalling default apps"
+Write-Output "PACKAGES_NAMES_NEEDS_UPDATING"
+Start-Sleep 3
+Write-Output "Uninstalling default apps" 
 $apps = @(
     # default Windows 10 apps
     "Microsoft.3DBuilder"
@@ -774,8 +780,9 @@ foreach ($app in $apps) {
         Where-Object DisplayName -EQ $app |
         Remove-AppxProvisionedPackage -Online
 }
-
-# Prevents Apps from re-installing
+Write-Output "PACKAGES_NAMES_NEEDS_UPDATING"
+Start-Sleep 3
+# Prevents Apps from re-installing ##PACKAGES_NAMES_MIGHT_NEED_UPDATING##
 $cdm = @(
     "ContentDeliveryAllowed"
     "FeatureManagementEnabled"
@@ -833,14 +840,14 @@ If ((Get-ChildItem "$env:userprofile\OneDrive" -Recurse | Measure-Object).Count 
 
 Write-Output "Disable OneDrive via Group Policies"
 New-FolderForced -Path "HKLM:\SOFTWARE\Wow6432Node\Policies\Microsoft\Windows\OneDrive"
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Wow6432Node\Policies\Microsoft\Windows\OneDrive" "DisableFileSyncNGSC" 1
+Set-ItemProperty -Force -Path "HKLM:\SOFTWARE\Wow6432Node\Policies\Microsoft\Windows\OneDrive" "DisableFileSyncNGSC" 1
 
 Write-Output "Remove Onedrive from explorer sidebar"
 New-PSDrive -PSProvider "Registry" -Root "HKEY_CLASSES_ROOT" -Name "HKCR"
 mkdir -Force "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}"
-Set-ItemProperty -Path "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" "System.IsPinnedToNameSpaceTree" 0
+Set-ItemProperty -Force -Path "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" "System.IsPinnedToNameSpaceTree" 0
 mkdir -Force "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}"
-Set-ItemProperty -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" "System.IsPinnedToNameSpaceTree" 0
+Set-ItemProperty -Force -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" "System.IsPinnedToNameSpaceTree" 0
 Remove-PSDrive "HKCR"
 
 # Thank you Matthew Israelsson
@@ -860,7 +867,6 @@ Get-ScheduledTask -TaskName UsbCeip | Disable-ScheduledTask -ErrorAction Silentl
 Get-ScheduledTask -TaskName DmClient | Disable-ScheduledTask -ErrorAction SilentlyContinue
 Get-ScheduledTask -TaskName DmClientOnScenarioDownload | Disable-ScheduledTask -ErrorAction SilentlyContinue
 
-Write-Output "Restarting explorer"
 Start-Process "explorer.exe"
 
 Write-Output "Waiting for explorer to complete loading"
@@ -1100,7 +1106,7 @@ Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters
 # Set Password Age Limit to 60 Days#
 Write-Output "Now looking at Net Accounts..."
 net accounts
-Start-Sleep 6
+Start-Sleep 3
 net accounts /minpwage:60
 net accounts /maxpwage:120
 net accounts /uniquepw:6
@@ -1108,16 +1114,14 @@ net accounts /minpwlen:8
 net accounts /forcelogoff:15
 Write-host "Net Accounts Now Changed"
 net accounts
-Start-Sleep 6
-#IN BATA ADD A SECURE GUEST ACCOUNT. Disable by default. un coment the next  lines... delete the number sign#
+Start-Sleep 4
+#IN BATA ADD A SECURE GUEST ACCOUNT. Disable by default. un coment the next  lines... Delete the number sign#
 #net user Secure_Visit /add /active:no
 #net user Secure_Visit *
 #net localgroup users Secure_Visit /delete
 #net localgroup Guests Secure_Visit /add
 #net user Secure_Visit /active:yes
-#takeown /f cmd.exe
 #icacls cmd.exe /deny Secure_Visit:RX
-#takeown /f cmd.exe /a
 
 ##########
 # Restart

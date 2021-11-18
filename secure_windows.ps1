@@ -1129,7 +1129,6 @@ Start-Sleep 4
 #Write-Host
 Write-Host "you need to restart your system for all settings to take effect" -ForegroundColor Black -BackgroundColor Red
 $key = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+Write-Host "Restarting...in 6 sec"
 start-sleep 6
-end
-#Write-Host "Restarting..."
-#Restart-Computer
+Restart-Computer

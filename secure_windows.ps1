@@ -1090,6 +1090,15 @@ Foreach ($adapter in $adapters){
 Write-Host $adapter
 $adapter.settcpipnetbios(2)
 }
+Write-Host "Hardening Account Control..."
+If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System")) {
+	New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Force | Out-Null
+}
+#BY Default ENABLED EnableSecureUIAPaths Only elevate UIAccess applications that are installed in secure locations... I would not change value unless you know what you are doing
+New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Force -Name "EnableSecureUIAPaths" -Type DWord -Value 1
+
+#BY Default ENABLED EnableVirtualization Virtualize file and registry write failures to per-user locations... I would not change value unless you know what you are doing
+New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Force -Name "EnableVirtualization" -Type DWord -Value 1
 #Require Password For elevated privileges
 If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System")) {
 	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ConsentPromptBehaviorAdmin" -Type DWORD -Value 3
@@ -1100,6 +1109,11 @@ If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System
 	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ConsentPromptBehaviorUser" -Type DWORD -Value 0
 }
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Force -Name "ConsentPromptBehaviorUser" -Type DWORD -Value 0
+
+Write-Host "BY Default DISABLED Only elevate executables that are signed and validated...Enable for more Securty"
+Start-Sleep 3
+# Remove the # in the next line to enable "Only elevate executables that are signed and validated"
+#New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Force -Name "ValidateAdminCodeSignatures" -Type DWord -Value 1
 
 $key = "HKLM:SYSTEM\CurrentControlSet\services\NetBT\Parameters\Interfaces"
 Get-ChildItem $key |
@@ -1124,8 +1138,9 @@ net accounts /minpwlen:8
 net accounts /forcelogoff:15
 Write-host "Net Accounts Now Changed"
 net accounts
-Start-Sleep 4
-#IN BATA ADD A SECURE GUEST ACCOUNT. Disable by default. un coment the next  lines... Delete the number sign#
+Start-Sleep 3
+write-host "IN BATA ADD A SECURE GUEST ACCOUNT. Disable by default. un coment the next  lines... Delete the number sign"
+Start-Sleep 3
 #net user Secure_Visit /add /active:no
 #net user Secure_Visit *
 #net localgroup users Secure_Visit /delete

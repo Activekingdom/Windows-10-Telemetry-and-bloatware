@@ -22,6 +22,10 @@ If (!(Test-Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHo
 	New-Item -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting" -Force | Out-Null
 }
 Set-ItemProperty -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting" -Force -Name "Value" -Type DWord -Value 0
+
+If (!(Test-Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting")) {
+	New-Item -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowAutoConnectToWiFiSenseHotspots" -Force | Out-Null
+}
 Set-ItemProperty -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowAutoConnectToWiFiSenseHotspots" -Force -Name "Value" -Type DWord -Value 0
 
 # Enable Wi-Fi Sense
@@ -39,13 +43,20 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AppHost"
 
 # Disable Bing Search in Start Menu
 Write-Host "Disabling Bing Search in Start Menu..."
+IF (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search"))
+	New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Force | Out-Null
+)
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type DWord -Value 0
-
 # Enable Bing Search in Start Menu
 # Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled"
 
 # Disable Location Tracking
 Write-Host "Disabling Location Tracking..."
+IF (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}"))
+	New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}"))	
+)
+IF (!(Test-Path "HKLM:\System\CurrentControlSet\Services\lfsvc\Service\Configuration" ))
+	New-Item -Path "HKLM:\System\CurrentControlSet\Services\lfsvc\Service\Configuration" -Force | Out-Null
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Force -Name "SensorPermissionState" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Services\lfsvc\Service\Configuration" -Force -Name "Status" -Type DWord -Value 0
 
@@ -53,7 +64,7 @@ Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Services\lfsvc\Service\Co
 # Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Name "SensorPermissionState" -Type DWord -Value 1
 # Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Services\lfsvc\Service\Configuration" -Name "Status" -Type DWord -Value 1
 
-# Disable Feedback
+# Disable Feedback ##Left Off Here##
 Write-Host "Disabling Feedback..."
 If (!(Test-Path "HKCU:\Software\Microsoft\Siuf\Rules")) {
 	New-Item -Path "HKCU:\Software\Microsoft\Siuf\Rules" -Force | Out-Null
@@ -191,7 +202,10 @@ Set-Service "HomeGroupProvider" -StartupType Disabled
 
  Disable Remote Assistance
  Write-Host "Disabling Remote Assistance..."
- Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Remote Assistance" -Force -Name "fAllowToGetHelp" -Type DWord -Value 0
+If (!(Test-Path "HKLM:\System\CurrentControlSet\Control\Remote Assistance")) {
+	New-Item -Path "HKLM:\System\CurrentControlSet\Control\Remote Assistance" -Force | Out-Null
+}
+Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Remote Assistance" -Force -Name "fAllowToGetHelp" -Type DWord -Value 0
 
 # Enable Remote Assistance
 # Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Remote Assistance" -Name "fAllowToGetHelp" -Type DWord -Value 1
@@ -202,7 +216,13 @@ Set-Service "HomeGroupProvider" -StartupType Disabled
 # Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "UserAuthentication" -Type DWord -Value 0
 
 # Disable Remote Desktop
+If (!(Test-Path "HKLM:\System\CurrentControlSet\Control\Terminal Server")) {
+	New-Item -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -Force | Out-Null	
+}
 Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -Force -Name "fDenyTSConnections" -Type DWord -Value 1
+If (!(Test-Path "HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp")) {
+	New-Item -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Force | Out-Null	
+}
 Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Force -Name "UserAuthentication" -Type DWord -Value 1
 
 ##########
@@ -233,6 +253,9 @@ Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server\W
 
 # Disable Autoplay
 Write-Host "Disabling Autoplay..."
+If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers")) {
+	New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers" -Force | Out-Null	
+}
 Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers" -Force -Name "DisableAutoplay" -Type DWord -Value 1
 
 # Enable Autoplay
@@ -431,6 +454,7 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -For
 # 	$onedrive = "$env:SYSTEMROOT\System32\OneDriveSetup.exe"
 # }
 # Start-Process $onedrive -NoNewWindow
+
 Write-Host "PACKAGES_NAMES_NEEDS_UPDATING"
 Start-Sleep 3
 # Uninstall default Microsoft applications ##PACKAGES_NAMES_NEEDS_UPDATING##
@@ -808,6 +832,9 @@ New-FolderForced -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsStore"
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsStore" "AutoDownload" 2
 
 # Prevents "Suggested Applications" returning
+If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent")) {
+	New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Force | Out-Null	
+}
 New-FolderForced -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" "DisableWindowsConsumerFeatures" 1
 
@@ -1123,6 +1150,25 @@ Set-ItemProperty "$key\$($_.pschildname)" -force -Name "NetbiosOptions" -Value 2
 Set-ItemProperty -Path "HKLM:\SYSTEM\ControlSet001\Services\NetBIOS" -Force -name "Start" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\services\NetBT" -Force -name "Start" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters" -Force -name "EnableLMHOSTS" -Type DWord -Value 0
+cd C:\Users\All Users\
+rm '.\Microsoft OneDrive\'
+write-Output "Mozilla firefox policies addons"
+If (!(Test-Path "HKLM:\Software\Policies\Mozilla\Firefox")) {
+	New-Item -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force | Out-Null
+}
+Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "BlockAboutConfig" -Type DWord -Value 0
+Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "BlockAboutAddons" -Type DWord -Value 0
+Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "BlockAboutProfiles" -Type DWord -Value 1
+Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "BlockAboutSupport" -Type DWord -Value 0
+Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "DisableSetDesktopBackground" -Type DWord -Value 1
+Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "DisableFeedbackCommands" -Type DWord -Value 1
+Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "DisableFirefoxAccounts" -Type DWord -Value 0
+Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "DisableFirefoxScreenshots" -Type DWord -Value 1
+Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "DisableFirefoxStudies" -Type DWord -Value 1
+Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "DisablePasswordReveal" -Type DWord -Value 1
+Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "DisablePocket" -Type DWord -Value 1
+Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "DisableProfileImport" -Type DWord -Value 0
+Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "DisableTelemetry" -Type DWord -Value 1
 # Remove Password Age Limit (Passwords never expire) #
 #net accounts /minpwage:0
 #net accounts /maxpwage:0
@@ -1133,9 +1179,17 @@ net accounts
 Start-Sleep 3
 net accounts /minpwage:60
 net accounts /maxpwage:120
-net accounts /uniquepw:6
+net accounts /uniquepw:5
 net accounts /minpwlen:8
 net accounts /forcelogoff:15
+Write-Host "This link tells you about Account lock out meaning when too many password attemps have been made."
+Write-host "https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/account-lockout-threshold"
+Write-Host "https://docs.microsoft.com/en-us/services-hub/health/remediation-steps-ad/set-the-account-lockout-threshold-to-the-recommended-value"
+Start-Sleep 3
+net accounts /lockoutwindow:10
+net accounts /lockoutDuration:10
+##the next line Default is 100. Setting to bigger number would help prvent DOS Attack##
+net accounts /lockoutThreshold:100 #The nember could be Bigger or smaller 25-999 should Be a good range.#
 Write-host "Net Accounts Now Changed"
 net accounts
 Start-Sleep 3
@@ -1157,3 +1211,19 @@ $key = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 Write-Output "[*] Sleeping 6 seconds"
 Start-Sleep -Seconds 6
 Restart-Computer
+
+    © 2021 GitHub, Inc.
+
+    Terms
+    Privacy
+    Security
+    Status
+    Docs
+    Contact GitHub
+    Pricing
+    API
+    Training
+    Blog
+    About
+
+Loading complete

@@ -1,32 +1,51 @@
-# Ask for elevated permissions if required
 If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
 	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
-	exit
+	Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+	Write-Host "I am not responsible for anything. Also I am not reliable for anything. You take full responsibility When running this script."
+	Write-Host "By going forward with is script/program . You agree with the terms and conditions."
+	sleep 3
+	Exit
 }
-sleep 2
-
+#Verify hash
+Write-Host "I am not responsible for anything. Also I am not reliable for anything. You take full responsibility When running this script." -ForegroundColor Red
+Write-Host "By going forward with is script/program . You agree with the terms and conditions." -ForegroundColor Green
+Write-Host "GET THE FILE HASH FROM GITHUB" -BackgroundColor Red -ForegroundColor Black
+Write-Host "This version is 0.0.3-alpha-Debloter" -ForegroundColor Black -BackgroundColor Red
+Write-Host "https://github.com/Activekingdom/Windows-10-Telemetry-and-blotware/"
+$SourceFileInitial = (Read-Host "Right-Click the source file.Copy as path.On windows 11 Shift+F10")
+$SourceFileTweaked = $SourceFileInitial.TrimStart('"').TrimEnd('"')
+$SourceFile = $SourceFileTweaked.ToString()
+$ChooseAlgorithm = (Read-host "Enter an Algorithm,such as SHA1,SHA256,SHA384,SHA512,or MD5.")
+$SourceHash = (Get-FileHash -Path $SourceFile -Algorithm $ChooseAlgorithm).hash
+Write-host "If it dose not match the Arrows will be in different directions.If they match it will be =="
+$ComparisonHash = (Read-Host "Paste the Hash per the Algorithm chosen.")
+Compare-Object -ReferenceObject $SourceHash -DifferenceObject $ComparisonHash -IncludeEqual
+Write-Host "Make sure that is =="
+Write-host "If it dose not match the Arrows will be in different directions.If they match it will be =="
 ##########
 # Privacy Settings
 ##########
-
 # Disable Telemetry
+Write-Host "Soon the script is staring to make big changes. stop the script Control+C Will end it"
+sleep 3
 Write-Host "Disabling Telemetry..."
-Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Force -Name "AllowTelemetry" -Type DWord -Value 0
+New-ItemProperty -Force -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0
 
 # Enable Telemetry
 # Remove-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry"
-
+Write-Host "The script is now staring.To stop the script Control+C or close it out will end it. Ending it could result in more errors and/or misbehavior."
+sleep 10
 # Disable Wi-Fi Sense
 Write-Host "Disabling Wi-Fi Sense..."
 If (!(Test-Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting")) {
 	New-Item -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting" -Force | Out-Null
 }
-Set-ItemProperty -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting" -Force -Name "Value" -Type DWord -Value 0
+New-ItemProperty -Force -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting" -Name "Value" -Type DWord -Value 0
 
 If (!(Test-Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting")) {
 	New-Item -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowAutoConnectToWiFiSenseHotspots" -Force | Out-Null
 }
-Set-ItemProperty -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowAutoConnectToWiFiSenseHotspots" -Force -Name "Value" -Type DWord -Value 0
+New-ItemProperty -Force -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowAutoConnectToWiFiSenseHotspots" -Name "Value" -Type DWord -Value 0
 
 # Enable Wi-Fi Sense
 # Set-ItemProperty -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting" -Name "Value" -Type DWord -Value 1
@@ -34,8 +53,8 @@ Set-ItemProperty -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\Allo
 
 # Disable SmartScreen Filter
 Write-Host "Disabling SmartScreen Filter..."
-Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Force -Name "SmartScreenEnabled" -Type String -Value "Off"
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AppHost" -Force -Name "EnableWebContentEvaluation" -Type DWord -Value 0
+New-ItemProperty -Force -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "SmartScreenEnabled" -Type String -Value "Off"
+New-ItemProperty -Force -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AppHost" -Name "EnableWebContentEvaluation" -Type DWord -Value 0
 
 # Enable SmartScreen Filter
 # Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "SmartScreenEnabled" -Type String -Value "RequireAdmin"
@@ -43,22 +62,23 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AppHost"
 
 # Disable Bing Search in Start Menu
 Write-Host "Disabling Bing Search in Start Menu..."
-IF (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search"))
+IF (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search")){
 	New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Force | Out-Null
-)
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type DWord -Value 0
+}
+New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type DWord -Value 0
 # Enable Bing Search in Start Menu
 # Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled"
 
 # Disable Location Tracking
 Write-Host "Disabling Location Tracking..."
-IF (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}"))
-	New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}"))	
-)
-IF (!(Test-Path "HKLM:\System\CurrentControlSet\Services\lfsvc\Service\Configuration" ))
+IF (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}")) {
+	New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}"	
+}
+IF (!(Test-Path "HKLM:\System\CurrentControlSet\Services\lfsvc\Service\Configuration" )) {
 	New-Item -Path "HKLM:\System\CurrentControlSet\Services\lfsvc\Service\Configuration" -Force | Out-Null
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Force -Name "SensorPermissionState" -Type DWord -Value 0
-Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Services\lfsvc\Service\Configuration" -Force -Name "Status" -Type DWord -Value 0
+}
+New-ItemProperty -Force -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Name "SensorPermissionState" -Type DWord -Value 0
+New-ItemProperty -Force -Path "HKLM:\System\CurrentControlSet\Services\lfsvc\Service\Configuration" -Force -Name "Status" -Type DWord -Value 0
 
 # Enable Location Tracking
 # Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Name "SensorPermissionState" -Type DWord -Value 1
@@ -69,7 +89,7 @@ Write-Host "Disabling Feedback..."
 If (!(Test-Path "HKCU:\Software\Microsoft\Siuf\Rules")) {
 	New-Item -Path "HKCU:\Software\Microsoft\Siuf\Rules" -Force | Out-Null
 }
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Siuf\Rules" -Force -Name "NumberOfSIUFInPeriod" -Type DWord -Value 0
+New-ItemProperty -Path "HKCU:\Software\Microsoft\Siuf\Rules" -Force -Name "NumberOfSIUFInPeriod" -Type DWord -Value 0
 
 # Enable Feedback
 # Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Siuf\Rules" -Name "NumberOfSIUFInPeriod"
@@ -79,7 +99,7 @@ Write-Host "Disabling Advertising ID..."
 If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo")) {
 	New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" | Out-Null
 }
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Force -Name "Enabled" -Type DWord -Value 0
+New-ItemProperty -Force -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type DWord -Value 0
 
 # Enable Advertising ID
 # Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled"
@@ -89,16 +109,16 @@ Write-Host "Disabling Cortana..."
 If (!(Test-Path "HKCU:\Software\Microsoft\Personalization\Settings")) {
 	New-Item -Path "HKCU:\Software\Microsoft\Personalization\Settings" -Force | Out-Null
 }
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Personalization\Settings" -Force -Name "AcceptedPrivacyPolicy" -Type DWord -Value 0
+New-ItemProperty -Force -Path "HKCU:\Software\Microsoft\Personalization\Settings" -Name "AcceptedPrivacyPolicy" -Type DWord -Value 0
 If (!(Test-Path "HKCU:\Software\Microsoft\InputPersonalization")) {
 	New-Item -Path "HKCU:\Software\Microsoft\InputPersonalization" -Force | Out-Null
 }
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization" -Force -Name "RestrictImplicitTextCollection" -Type DWord -Value 1
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization" -Force -Name "RestrictImplicitInkCollection" -Type DWord -Value 1
-If (!(Test-Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore")) {
+New-ItemProperty -Force -Path "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitTextCollection" -Type DWord -Value 1
+New-ItemProperty -Force -Path "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitInkCollection" -Type DWord -Value 1
+If (!(Test-Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore")){
 	New-Item -Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore" -Force | Out-Null
 }
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore" -Force -Name "HarvestContacts" -Type DWord -Value 0
+New-ItemProperty -Force -Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore" -Name "HarvestContacts" -Type DWord -Value 0
 
 #Stops Cortana from being used as part of your Windows Search Function
     Write-Output "Stopping Cortana from being used as part of your Windows Search Function"
@@ -106,7 +126,7 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDat
     If (Test-Path $Search) {
         Set-ItemProperty $Search -Force -Name AllowCortana -Value 0 -Verbose
     }
-	
+
 # Enable Cortana
 # Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Personalization\Settings" -Name "AcceptedPrivacyPolicy"
 # Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitTextCollection" -Type DWord -Value 0
@@ -115,11 +135,12 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDat
 
 # Restrict Windows Update P2P only to local network
 Write-Host "Restricting Windows Update P2P only to local network..."
-Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -Type DWord -Value 1 #0=off 1=On but local network only 2=On,local network private peering only 3=On local network and Internet 99=simply download mode 100=bypass mode
+#0=off 1=On but local network only 2=On,local network private peering only 3=On local network and Internet 99=simply download mode 100=bypass mode
+New-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -Type DWord -Value 0
 If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\DeliveryOptimization")) {
 	New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\DeliveryOptimization" | Out-Null
 }
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\DeliveryOptimization" -Force -Name "SystemSettingsDownloadMode" -Type DWord -Value 3
+New-ItemProperty -Force -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\DeliveryOptimization" -Name "SystemSettingsDownloadMode" -Type DWord -Value 3
 
 # Unrestrict Windows Update P2P
 # Remove-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode"
@@ -165,7 +186,7 @@ Set-Service "DiagTrack" -StartupType Disabled
 
 # Disable sharing mapped drives between users
 Write-host "Disabling sharing mapped drives between users"
-Remove-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Force -Name "EnableLinkedConnections"
+Remove-ItemProperty -Force -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableLinkedConnections"
 
 # Disable Firewall
 # Write-Host "Disabling Firewall..."
@@ -183,7 +204,7 @@ Remove-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Polic
 
 # Disable Windows Update automatic restart
 Write-Host "Disabling Windows Update automatic restart...You can enable later"
-Set-ItemProperty -Path "HKLM:\Software\Microsoft\WindowsUpdate\UX\Settings" -Name "UxOption" -Type DWord -Value 1
+New-ItemProperty -Path "HKLM:\Software\Microsoft\WindowsUpdate\UX\Settings" -Name "UxOption" -Type DWord -Value 1
 
 # Enable Windows Update automatic restart
 # Set-ItemProperty -Path "HKLM:\Software\Microsoft\WindowsUpdate\UX\Settings" -Name "UxOption" -Type DWord -Value 0
@@ -205,7 +226,7 @@ Set-Service "HomeGroupProvider" -StartupType Disabled
 If (!(Test-Path "HKLM:\System\CurrentControlSet\Control\Remote Assistance")) {
 	New-Item -Path "HKLM:\System\CurrentControlSet\Control\Remote Assistance" -Force | Out-Null
 }
-Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Remote Assistance" -Force -Name "fAllowToGetHelp" -Type DWord -Value 0
+New-ItemProperty -Force -Path "HKLM:\System\CurrentControlSet\Control\Remote Assistance" -Name "fAllowToGetHelp" -Type DWord -Value 0
 
 # Enable Remote Assistance
 # Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Remote Assistance" -Name "fAllowToGetHelp" -Type DWord -Value 1
@@ -219,11 +240,11 @@ Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Remote Assistance
 If (!(Test-Path "HKLM:\System\CurrentControlSet\Control\Terminal Server")) {
 	New-Item -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -Force | Out-Null	
 }
-Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -Force -Name "fDenyTSConnections" -Type DWord -Value 1
+New-ItemProperty -Force -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Type DWord -Value 1
 If (!(Test-Path "HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp")) {
 	New-Item -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Force | Out-Null	
 }
-Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Force -Name "UserAuthentication" -Type DWord -Value 1
+New-ItemProperty -Force -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "UserAuthentication" -Type DWord -Value 1
 
 ##########
 # UI Tweaks
@@ -256,7 +277,7 @@ Write-Host "Disabling Autoplay..."
 If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers")) {
 	New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers" -Force | Out-Null	
 }
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers" -Force -Name "DisableAutoplay" -Type DWord -Value 1
+New-ItemProperty -Force -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers" -Name "DisableAutoplay" -Type DWord -Value 1
 
 # Enable Autoplay
 # Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers" -Name "DisableAutoplay" -Type DWord -Value 0
@@ -273,7 +294,7 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer
 
 # Disable Sticky keys prompt
 Write-Host "Disabling Sticky keys prompt..."
-Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Force -Name "Flags" -Type String -Value "506"
+Set-ItemProperty -Force -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Name "Flags" -Type String -Value "506"
 
 # Enable Sticky keys prompt
 # Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Name "Flags" -Type String -Value "510"
@@ -304,32 +325,32 @@ Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Force -Na
 # Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarGlomLevel" -Type DWord -Value 1
 
 # Hide titles in taskbar
-Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarGlomLevel" -Force
+Remove-ItemProperty -Force -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarGlomLevel"
 
 # Show all tray icons
 Write-Host "Showing all tray icons..."
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "EnableAutoTray" -Type DWord -Value 0 -Force
+New-ItemProperty -Force -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "EnableAutoTray" -Type DWord -Value 0
 
 # Hide tray icons as needed
 # Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "EnableAutoTray"
 
 # Show known file extensions
 Write-Host "Showing known file extensions..."
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0 -Force
+New-ItemProperty -Force -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0
 
 # Hide known file extensions
 # Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 1
 
 Show hidden files
 Write-Host "Showing hidden files..."
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force -Name "Hidden" -Type DWord -Value 1 -Force
+Set-ItemProperty -Force -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 1
 
 # Hide hidden files
 # Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 2
 
 # Change default Explorer view to "Computer"
 Write-Host "Changing default Explorer view to `"Computer`"..."
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1 -Force
+Set-ItemProperty -Force -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1
 
 # Change default Explorer view to "Quick Access"
 # Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo"
@@ -419,7 +440,7 @@ Write-Host "Disabling OneDrive..."
 If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive")) {
 	New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" | Out-Null
 }
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Force -Name "DisableFileSyncNGSC" -Type DWord -Value 1
+Set-ItemProperty -Force -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -Type DWord -Value 1
 
 # Enable OneDrive
 # Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC"
@@ -454,7 +475,6 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -For
 # 	$onedrive = "$env:SYSTEMROOT\System32\OneDriveSetup.exe"
 # }
 # Start-Process $onedrive -NoNewWindow
-
 Write-Host "PACKAGES_NAMES_NEEDS_UPDATING"
 Start-Sleep 3
 # Uninstall default Microsoft applications ##PACKAGES_NAMES_NEEDS_UPDATING##
@@ -829,14 +849,14 @@ foreach ($key in $cdm) {
 }
 
 New-FolderForced -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsStore"
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsStore" "AutoDownload" 2
+Set-ItemProperty -Force -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsStore" "AutoDownload" 2
 
 # Prevents "Suggested Applications" returning
 If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent")) {
 	New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Force | Out-Null	
 }
 New-FolderForced -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" "DisableWindowsConsumerFeatures" 1
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Force "DisableWindowsConsumerFeatures" 1
 
 #   Description:
 # This script will remove and disable OneDrive integration.
@@ -1088,7 +1108,7 @@ netsh firewall>set multicastbroadcastresponse mode=disable profile=all
 If (!(Test-Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters")) {
 	New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "IGMPLevel" -Type DWORD -Value 0
 }
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Force -Name "IGMPLevel" -Type DWord -Value 0
+Set-ItemProperty -Force -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "IGMPLevel" -Type DWord -Value 0
 
 #Enable netbios over TCP/IP and DHCP
 #Get-WmiObject Win32_NetworkAdapterConfiguration | Where IPAddress
@@ -1117,58 +1137,73 @@ Foreach ($adapter in $adapters){
 Write-Host $adapter
 $adapter.settcpipnetbios(2)
 }
+If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\System")) {
+	New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Force | Out-Null
+}
+#Disable cmd set to 1 in the next line.Default is 0
+New-ItemProperty -Force -Path "HKCU:\Software\Policies\Microsoft\Windows\System" -Name "DisableCMD" -Type DWord -Value 0
+
+If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell")) {
+	New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell" -Force | Out-Null
+}
+Write-Host "For added security change the value to 0"
+Write-host "This will disable powershell from running scripts. It is disable by default"
+sleep 3
+#The next line will disable powershell script. Set to 0 to disallow scripts.#
+New-ItemProperty -Force -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell" -Name "EnableScripts" -Type DWord -Value 1
+
 Write-Host "Hardening Account Control..."
 If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System")) {
 	New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Force | Out-Null
 }
 #BY Default ENABLED EnableSecureUIAPaths Only elevate UIAccess applications that are installed in secure locations... I would not change value unless you know what you are doing
-New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Force -Name "EnableSecureUIAPaths" -Type DWord -Value 1
+New-ItemProperty -Force -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableSecureUIAPaths" -Type DWord -Value 1
 
 #BY Default ENABLED EnableVirtualization Virtualize file and registry write failures to per-user locations... I would not change value unless you know what you are doing
-New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Force -Name "EnableVirtualization" -Type DWord -Value 1
+New-ItemProperty -Force -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableVirtualization" -Type DWord -Value 1
 #Require Password For elevated privileges
 If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System")) {
 	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ConsentPromptBehaviorAdmin" -Type DWORD -Value 3
 }
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Force -Name "ConsentPromptBehaviorAdmin" -Type DWORD -Value 3
+Set-ItemProperty -Force -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ConsentPromptBehaviorAdmin" -Type DWORD -Value 3
 
 If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System")) {
 	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ConsentPromptBehaviorUser" -Type DWORD -Value 0
 }
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Force -Name "ConsentPromptBehaviorUser" -Type DWORD -Value 0
+Set-ItemProperty -Force -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ConsentPromptBehaviorUser" -Type DWORD -Value 0
 
 Write-Host "BY Default DISABLED Only elevate executables that are signed and validated...Enable for more Securty"
 Start-Sleep 3
 # Remove the # in the next line to enable "Only elevate executables that are signed and validated"
-#New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Force -Name "ValidateAdminCodeSignatures" -Type DWord -Value 1
+#New-ItemProperty -Force -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ValidateAdminCodeSignatures" -Type DWord -Value 1
 
 $key = "HKLM:SYSTEM\CurrentControlSet\services\NetBT\Parameters\Interfaces"
 Get-ChildItem $key |
 foreach { 
 Set-ItemProperty "$key\$($_.pschildname)" -force -Name "NetbiosOptions" -Value 2
 }
-Set-ItemProperty -Path "HKLM:\SYSTEM\ControlSet001\Services\NetBIOS" -Force -name "Start" -Type DWord -Value 0
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\services\NetBT" -Force -name "Start" -Type DWord -Value 0
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters" -Force -name "EnableLMHOSTS" -Type DWord -Value 0
+Set-ItemProperty -Force -Path "HKLM:\SYSTEM\ControlSet001\Services\NetBIOS" -name "Start" -Type DWord -Value 0
+Set-ItemProperty -Force -Path "HKLM:\SYSTEM\CurrentControlSet\services\NetBT" -name "Start" -Type DWord -Value 0
+Set-ItemProperty -Force -Path "HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters" -name "EnableLMHOSTS" -Type DWord -Value 0
 cd C:\Users\All Users\
-rm '.\Microsoft OneDrive\'
+rm -f '.\Microsoft OneDrive\'
 write-Output "Mozilla firefox policies addons"
 If (!(Test-Path "HKLM:\Software\Policies\Mozilla\Firefox")) {
 	New-Item -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force | Out-Null
 }
-Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "BlockAboutConfig" -Type DWord -Value 0
-Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "BlockAboutAddons" -Type DWord -Value 0
-Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "BlockAboutProfiles" -Type DWord -Value 1
-Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "BlockAboutSupport" -Type DWord -Value 0
-Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "DisableSetDesktopBackground" -Type DWord -Value 1
-Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "DisableFeedbackCommands" -Type DWord -Value 1
-Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "DisableFirefoxAccounts" -Type DWord -Value 0
-Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "DisableFirefoxScreenshots" -Type DWord -Value 1
-Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "DisableFirefoxStudies" -Type DWord -Value 1
-Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "DisablePasswordReveal" -Type DWord -Value 1
-Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "DisablePocket" -Type DWord -Value 1
-Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "DisableProfileImport" -Type DWord -Value 0
-Set-ItemProperty -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Force -Name "DisableTelemetry" -Type DWord -Value 1
+New-ItemProperty -Force -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Name "BlockAboutConfig" -Type DWord -Value 0
+New-ItemProperty -Force -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Name "BlockAboutAddons" -Type DWord -Value 0
+New-ItemProperty -Force -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Name "BlockAboutProfiles" -Type DWord -Value 1
+New-ItemProperty -Force -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Name "BlockAboutSupport" -Type DWord -Value 0
+New-ItemProperty -Force -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Name "DisableSetDesktopBackground" -Type DWord -Value 1
+New-ItemProperty -Force -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Name "DisableFeedbackCommands" -Type DWord -Value 1
+New-ItemProperty -Force -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Name "DisableFirefoxAccounts" -Type DWord -Value 0
+New-ItemProperty -Force -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Name "DisableFirefoxScreenshots" -Type DWord -Value 1
+New-ItemProperty -Force -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Name "DisableFirefoxStudies" -Type DWord -Value 1
+New-ItemProperty -Force -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Name "DisablePasswordReveal" -Type DWord -Value 1
+New-ItemProperty -Force -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Name "DisablePocket" -Type DWord -Value 1
+New-ItemProperty -Force -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Name "DisableProfileImport" -Type DWord -Value 0
+New-ItemProperty -Force -Path "HKLM:\Software\Policies\Mozilla\Firefox" -Name "DisableTelemetry" -Type DWord -Value 1
 # Remove Password Age Limit (Passwords never expire) #
 #net accounts /minpwage:0
 #net accounts /maxpwage:0
@@ -1221,9 +1256,8 @@ Restart-Computer
     Docs
     Contact GitHub
     Pricing
+
     API
     Training
     Blog
     About
-
-Loading complete

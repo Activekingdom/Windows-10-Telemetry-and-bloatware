@@ -7,21 +7,47 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 	Exit
 }
 #Verify hash
+cls
 Write-Host "I am not responsible for anything. Also I am not reliable for anything. You take full responsibility When running this script." -ForegroundColor Red
 Write-Host "By going forward with is script/program . You agree with the terms and conditions." -ForegroundColor Green
-Write-Host "GET THE FILE HASH FROM GITHUB" -BackgroundColor Red -ForegroundColor Black
-Write-Host "This version is 0.0.1-Debloter" -ForegroundColor Black -BackgroundColor Red
-Write-Host "https://github.com/Activekingdom/Windows-10-Telemetry-and-blotware/"
-$SourceFileInitial = (Read-Host "Right-Click the source file.Copy as path.On windows 11 Shift+F10")
+Write-Host "This version is 0.0.1-Debloater" -ForegroundColor Black -BackgroundColor Red
+sleep 6
+$SourceFileInitial = (Read-Host "Right-Click the source file.Copy as path.On windows 11 Shift+F10. Enter the file path of the script")
 $SourceFileTweaked = $SourceFileInitial.TrimStart('"').TrimEnd('"')
 $SourceFile = $SourceFileTweaked.ToString()
-$ChooseAlgorithm = (Read-host "Enter an Algorithm,such as SHA1,SHA256,SHA384,SHA512,or MD5.")
+Write-Host "GET THE FILE HASH FROM GITHUB!" -BackgroundColor Red -ForegroundColor Black
+Write-Host "This version is 0.0.1-Debloater" -ForegroundColor Black -BackgroundColor Red
+$ChooseAlgorithm = (Read-host "Enter an Algorithm on Github.Such as SHA1,SHA256,SHA384,SHA512,or MD5.")
 $SourceHash = (Get-FileHash -Path $SourceFile -Algorithm $ChooseAlgorithm).hash
-Write-host "If it dose not match the Arrows will be in different directions.If they match it will be =="
-$ComparisonHash = (Read-Host "Paste the Hash per the Algorithm chosen.")
+cls
+Write-Host "GET THE FILE HASH FROM GITHUB!" -BackgroundColor Red -ForegroundColor Black
+Write-host "If it dose not match will exit the script.If they match the script will not continue ."  -ForegroundColor Red
+Write-Host "If you have change this script you. Need to Comment The Hash Check. This will make this hash check pointless. " -BackgroundColor Red -ForegroundColor Black
+$ComparisonHash = (Read-Host "Paste in the file hash from GetHub. You Choose." $ChooseAlgorithm)
 Compare-Object -ReferenceObject $SourceHash -DifferenceObject $ComparisonHash -IncludeEqual
-Write-Host "Make sure that is =="
-Write-host "If it dose not match the Arrows will be in different directions.If they match it will be =="
+if ($SourceHash -eq $ComparisonHash) {
+	sleep 2
+	cls
+	Write-Host "They are correct it has not been tampered with" -ForegroundColor green
+	
+}
+#The Hash Check 
+#This checks if the File has been tampered with. IT WILL EXIT IF SO. TO DISABLE PUT # ON ALL THE NEXT 15 LINES. SO LINES 36-50#
+if ($SourceHash -ne $ComparisonHash) {
+	cls
+	Write-Host "THE HASH IS NOT EQUAL! WARNING THIS MIGHT BE TAMPERED WITH" -ForegroundColor Red
+	sleep 3
+	Write-Host "IF YOU TAMPERED WITH IT. YOU MUST DISABLE THE HASH CHECK ." -ForegroundColor Red
+	sleep 6
+	Write-Host "If you look at the SideIndicator it will be 
+=>
+<=
+It means mix match
+"
+sleep 15
+	exit
+	end
+}
 ##########
 # Privacy Settings
 ##########
@@ -64,8 +90,9 @@ New-ItemProperty -Force -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\A
 Write-Host "Disabling Bing Search in Start Menu..."
 IF (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search")){
 	New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Force | Out-Null
+	New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type DWord -Value 0
+
 }
-New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type DWord -Value 0
 # Enable Bing Search in Start Menu
 # Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled"
 
@@ -75,7 +102,7 @@ IF (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overr
 	New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}"	
 }
 IF (!(Test-Path "HKLM:\System\CurrentControlSet\Services\lfsvc\Service\Configuration" )) {
-	New-Item -Path "HKLM:\System\CurrentControlSet\Services\lfsvc\Service\Configuration" -Force | Out-Null
+	New-Item -Path "HKLM:\System\CurrentControlSet\Services\lfsvc\Service\Configuration" | Out-Null
 }
 New-ItemProperty -Force -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Name "SensorPermissionState" -Type DWord -Value 0
 New-ItemProperty -Force -Path "HKLM:\System\CurrentControlSet\Services\lfsvc\Service\Configuration" -Force -Name "Status" -Type DWord -Value 0
@@ -84,7 +111,7 @@ New-ItemProperty -Force -Path "HKLM:\System\CurrentControlSet\Services\lfsvc\Ser
 # Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Name "SensorPermissionState" -Type DWord -Value 1
 # Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Services\lfsvc\Service\Configuration" -Name "Status" -Type DWord -Value 1
 
-# Disable Feedback ##Left Off Here##
+# Disable Feedback
 Write-Host "Disabling Feedback..."
 If (!(Test-Path "HKCU:\Software\Microsoft\Siuf\Rules")) {
 	New-Item -Path "HKCU:\Software\Microsoft\Siuf\Rules" -Force | Out-Null
@@ -626,10 +653,12 @@ $services = @(
     "WMPNetworkSvc"                            # Windows Media Player Network Sharing Service
     #"wscsvc"                                  # Windows Security Center Service
     "WSearch"                                 # Windows Search
+	"lltdsvc"								 #Link-Layer Topology Discovery Mapper
     "XblAuthManager"                           # Xbox Live Auth Manager
     "XblGameSave"                              # Xbox Live Game Save Service
     "XboxNetApiSvc"                            # Xbox Live Networking Service
-    "ndu"                                      # Windows Network Data Usage Monitor
+	"SEMgrSvc"									#Payments and NFC/SE Manager
+    #"ndu"                                      # Windows Network Data Usage Monitor ##dose not work.
     "spoolsv"				       #Print Spooler needed for printing
     # Services which cannot be disabled
     #"WdNisSvc"
@@ -637,8 +666,8 @@ $services = @(
 
 foreach ($service in $services) {
     Write-Output "Trying to disable $service"
+	Get-Service -Name $service | Stop-Service -Force
     Get-Service -Name $service | Set-Service -StartupType Disabled
-    Get-Service -Name $service | Stop-Service -Force
 }
 
 
@@ -1090,9 +1119,6 @@ reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Pe
 reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" /t "REG_DWORD" /d "0" /f
 reg add "HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "SystemUsesLightTheme" /t "REG_DWORD" /d "0" /f
 
-
-#Added By ActiveKingdom#
-Write-Host "Added By ActiveKingdom"
 Start-Sleep -s 2
 Get-AppxPackage "Microsoft.AsyncTextService" | Remove-AppxPackage
 Get-AppxPackage "Microsoft.MicrosoftEdgeDevToolsClient" | Remove-AppxPackage
@@ -1224,7 +1250,7 @@ Start-Sleep 3
 net accounts /lockoutwindow:10
 net accounts /lockoutDuration:10
 ##the next line Default is 100. Setting to bigger number would help prvent DOS Attack##
-net accounts /lockoutThreshold:100 #The nember could be Bigger or smaller 25-999 should Be a good range.#
+net accounts /lockoutThreshold:25 #The nember could be Bigger or smaller 25-999 should Be a good range.#
 Write-host "Net Accounts Now Changed"
 net accounts
 Start-Sleep 3

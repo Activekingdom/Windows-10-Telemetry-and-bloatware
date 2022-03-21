@@ -10,7 +10,7 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 Write-Host "I am not responsible for anything. Also I am not reliable for anything. You take full responsibility When running this script." -ForegroundColor Red
 Write-Host "By going forward with is script/program . You agree with the terms and conditions." -ForegroundColor Green
 Write-Host "GET THE FILE HASH FROM GITHUB" -BackgroundColor Red -ForegroundColor Black
-Write-Host "This version is 0.0.3-alpha-Debloter" -ForegroundColor Black -BackgroundColor Red
+Write-Host "This version is 0.0.1-Debloter" -ForegroundColor Black -BackgroundColor Red
 Write-Host "https://github.com/Activekingdom/Windows-10-Telemetry-and-blotware/"
 $SourceFileInitial = (Read-Host "Right-Click the source file.Copy as path.On windows 11 Shift+F10")
 $SourceFileTweaked = $SourceFileInitial.TrimStart('"').TrimEnd('"')
